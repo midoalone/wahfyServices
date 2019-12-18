@@ -3,36 +3,28 @@ import {
   REMOVEFROMCART,
   INCREMENTCART,
   DECREMENTCART,
-  INCREMENTHEADCART,
-  DECREMENTHEADCART,
 } from '../actions/types';
 
 const initialState = {
   cart: [],
-  cartCount: 1,
-  headCart: 0,
-  total: 0,
+  qty: 1,
 };
 export default (state = initialState, action) => {
   switch (action.type) {
     case ADDTOCART:
-      return {...state, cart: [...state.cart, action.payload]}; 
+      return {
+        ...state,
+        cart: [...state.cart, {id: action.payload.id, qty: action.payload.id + 1}],
+      };
     case REMOVEFROMCART:
       return {
         ...state,
         cart: state.cart.filter(element => element.id != action.payload),
       };
     case INCREMENTCART:
-      return {...state, cartCount: state.cartCount + 1};
+      return {...state, qty: state.qty + 1};
     case DECREMENTCART:
-      return {...state, cartCount: state.cartCount - 1};
-    case INCREMENTHEADCART:
-      return {...state, headCart: state.headCart + 1};
-    case DECREMENTHEADCART:
-      return {...state, headCart: state.headCart - 1};
-    case 'sum':
-      return { 
-        ...state, total: [...state.total, action.payload]};
+      return {...state, qty: state.qty - 1};
     default:
       return state;
   }

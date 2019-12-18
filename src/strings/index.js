@@ -9,16 +9,32 @@ export const strings = {
   //placeholders
   email: 'Email',
   password: 'Password',
-  userName: 'Username',
+  fullName: 'Full name',
   phone: 'Phone',
-  date: 'Date of birth',
+  age: 'Age',
+
+  //error messages
+
+  errorMessages: {
+    emailErrorText: 'Enter valid email',
+    forgetEmailErrorText: 'Enter valid email',
+    passwordErrorText: 'Enter at least 6 digits',
+    phoneNoErrorText: 'Enter valid number start with 0',
+    nameErrorText: 'Choose your type',
+    streetErrorText: 'Enter your address name',
+    floorNoErrorText: 'Enter your floor number',
+    buildingNoErrorText: 'Enter your build number',
+    landMarkErrorText: 'Enter closest landmark',
+    cityErrorText: 'Enter your city',
+    AreaErrorText: 'Enter your area',
+  },
 
   //screens name
   login: 'Login',
   signup: 'Sign up',
   verifyingNumber: 'VerifyingNumber',
   phoneVerification: 'Phone Verification',
-  home: "Home",
+  home: 'Home',
   addAddress: 'Add Address',
   cart: 'Cart',
   editAddress: 'Edit Address',
@@ -26,6 +42,17 @@ export const strings = {
   myAddresses: 'My Addresses',
   myOrders: 'My Orders',
   offers: 'Offers',
+  productDetails: 'Product Details',
+  branches: 'Branches',
+  profile: 'Profile',
+  offersMenu: "Offers Menu",
+  
+
+  //empty screens
+  emptyCart: 'Cart is empty',
+  emptyAddresses: 'Addresses is empty',
+  emptyOrders: 'Orders is empty',
+  emptyOffers: 'No offers',
 
   //Intro screen
   login: 'Login',
@@ -50,38 +77,50 @@ export const strings = {
   useThisAddress: 'Use this address',
   edit: 'Edit',
 
-  //verifyingNumber
+  //verifyingNumber screen
   verifyingNumber: 'Verify your phone number',
   weHaveSentSMS: 'We have sent you an SMS with a code to number',
   orLogin: 'Or login with',
   socialNetwork: 'Social network',
   next: 'Next',
 
-  // OTB screen
+  // OTB screen screen
   phoneVerification: 'Phone Verification',
   enterYourCode: 'Enter your OTP code here',
   didntReceivedCode: "Didn't received any code ?",
   resendCode: 'Resend a new code.',
 
-  //add address
+  //add address screen
   enterDetails: 'Enter Details',
   editDetails: 'Edit Details',
   addressName: 'Address Name',
-  house: 'House/Flat No.',
-  locality: 'Locality',
+  floor: 'Floor No.',
+  buildingNo: 'BuildingNo.',
   city: 'City',
   area: 'Area',
   landmark: 'Landmark',
   saveAddress: 'Save Address',
+  name: "Home / Work",
 
-  //my addresses
+  //my addresses screen
   addNewAddress: 'Add new address',
   noAddresses: 'No Addresses',
 
   //menu
   relatedOffers: 'Related offers',
   price: 'Price:',
+  confirmOrder: 'Confirm Order',
+  checkout: 'Checkout',
+
+  //branchCard
+  workingHours: 'Working hours',
+  from: 'From:',
+  to: 'To:',
 
   //product details
   calories: 'Calories:',
+  addTocart: 'Add to cart',
+
+  //profile screen
+  save: 'Save',
 };

@@ -11,13 +11,22 @@ import {colors} from '../constants';
 import {strings} from '../strings';
 import {Dropdown} from 'react-native-material-dropdown';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import {connect} from 'react-redux';
+import {bindActionCreators} from 'redux';
+import {newAddress} from '../redux/actions';
+import {base_URL} from '../services/API';
 
 class AddAddress extends Component {
   state = {
-    addressName: '',
-    house: '',
-    locality: '',
+    name: '',
+    street: '',
+    floorNumber: '',
+    buildingNumber: '',
     landmark: '',
+    cities: [],
+    areas: [],
+    error: '',
+    buttonLoading: false,
   };
 
   static navigationOptions = ({navigation}) => ({
@@ -30,15 +39,102 @@ class AddAddress extends Component {
           marginEnd: 10,
         }}
         onPress={() => navigation.navigate('Home')}>
-        <Icon name="home" size={8} color={colors.white} size={35} />
+        <Icon name="home" color={colors.white} size={35} />
       </TouchableOpacity>
     ),
     headerTintColor: colors.white,
     headerTitle: strings.addAddress,
   });
 
+  componentDidMount() {
+    this.getCitiesAndAreas();
+  }
+
+  async getCitiesAndAreas() {
+    const {token} = this.props.user.data;
+    const data = {
+      method: 'GET',
+      headers: {
+        Authorization: token ? `Bearer ${token}` : '',
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    };
+    const citiesResult = await fetch(`${base_URL}cities`, data);
+    const cities = await citiesResult.json();
+
+    const cityId = cities.data[0].id;
+    const areasResult = await fetch(`${base_URL}cities/${cityId}/areas`, data);
+    const areas = await areasResult.json();
+    this.setState({cities: cities.data, areas});
+  }
+
+  validateAddressInputs(
+    nameError,
+    streetError,
+    floorNoError,
+    buildingNoError,
+    landmarkError,
+  ) {
+    if (nameError) {
+      this.setState({error: 'name'});
+    } else if (streetError) {
+      this.setState({error: 'street'});
+    } else if (floorNoError) {
+      this.setState({error: 'floor'});
+    } else if (buildingNoError) {
+      this.setState({error: 'building'});
+    } else if (landmarkError) {
+      this.setState({error: 'landmark'});
+    } else this.createAddress();
+  }
+
+  createAddress() {
+    const {token} = this.props.user.data;
+    const {
+      name,
+      street,
+      buildingNumber,
+      floorNumber,
+      landmark,
+      cities,
+      areas,
+    } = this.state;
+    const {navigation} = this.props;
+    const cityId = cities.forEach(city => {
+      return city.id;
+    });
+    const areaId = areas.forEach(area => {
+      return area.id;
+    });
+
+    this.setState({buttonLoading: true});
+
+    this.props.newAddress({
+      name,
+      street,
+      building_number: buildingNumber,
+      floor_number: floorNumber,
+      landmark,
+      city_id: cityId || 1,
+      area_id: areaId || 1,
+      navigation,
+      token,
+    });
+    this.setState({buttonLoading: false});
+  }
   render() {
-    const {addressName, house, locality, landmark} = this.state;
+    const {
+      name,
+      street,
+      floorNumber,
+      buildingNumber,
+      landmark,
+      error,
+      cities,
+      areas,
+      buttonLoading,
+    } = this.state;
     const {
       headLineStyle,
       inputStyle,
@@ -46,6 +142,43 @@ class AddAddress extends Component {
       buttonStyle,
       enterDetailsText,
     } = styles;
+
+    const {
+      nameErrorText,
+      streetErrorText,
+      floorNoErrorText,
+      buildingNoErrorText,
+      landMarkErrorText,
+    } = strings.errorMessages;
+
+    const nameError = name.length == 0;
+    const isNameError = error === 'name';
+
+    const streetError = street.length == 0;
+    const isStreetError = error === 'street';
+
+    const floorNoError = floorNumber.length == 0;
+    const isFloorNoError = error === 'floor';
+
+    const buildingNoError = buildingNumber.length == 0;
+    const isBuildingNoError = error === 'building';
+
+    const landmarkError = landmark.length == 0;
+    const isLandmarkError = error === 'landmark';
+
+    const CitiesDropDownData = cities.map(city => ({
+      value: city.name_en,
+    }));
+
+    const AreasDropDownData = areas.map(area => ({
+      value: area.name_en,
+    }));
+
+    // const cityId = cities[0].find(city => {
+    //   return city.id;
+    // });
+    // console.log('cityId', cityId)
+
     return (
       <ScrollView contentContainerStyle={{marginTop: 15, flex: 1}}>
         <View style={{flex: 1}}>
@@ -53,27 +186,45 @@ class AddAddress extends Component {
           <View style={headLineStyle} />
           <Input
             containerStyle={inputStyle}
-            placeholder={strings.addressName}
+            placeholder={strings.name}
             placeholderTextColor={'gray'}
             inputStyle={{fontSize: 15, marginStart: 0, width: '95%'}}
-            value={addressName}
-            onChangeText={addressName => this.setState({addressName})}
+            value={name}
+            onChangeText={name => this.setState({name, error: ''})}
+            errorMessage={isNameError && nameErrorText}
           />
           <Input
             containerStyle={inputStyle}
-            placeholder={strings.house}
+            placeholder={strings.addressName}
             placeholderTextColor={'gray'}
             inputStyle={{fontSize: 15, marginStart: 0}}
-            value={house}
-            onChangeText={house => this.setState({house})}
+            value={street}
+            onChangeText={street => this.setState({street, error: ''})}
+            errorMessage={isStreetError && streetErrorText}
           />
           <Input
             containerStyle={inputStyle}
-            placeholder={strings.locality}
+            placeholder={strings.floor}
             placeholderTextColor={'gray'}
             inputStyle={{fontSize: 15, marginStart: 0}}
-            value={locality}
-            onChangeText={locality => this.setState({locality})}
+            value={floorNumber}
+            onChangeText={floorNumber =>
+              this.setState({floorNumber, error: ''})
+            }
+            keyboardType="number-pad"
+            errorMessage={isFloorNoError && floorNoErrorText}
+          />
+          <Input
+            containerStyle={inputStyle}
+            placeholder={strings.buildingNo}
+            placeholderTextColor={'gray'}
+            inputStyle={{fontSize: 15, marginStart: 0}}
+            value={buildingNumber}
+            onChangeText={buildingNumber =>
+              this.setState({buildingNumber, error: ''})
+            }
+            keyboardType="number-pad"
+            errorMessage={isBuildingNoError && buildingNoErrorText}
           />
           <Input
             containerStyle={inputStyle}
@@ -81,42 +232,39 @@ class AddAddress extends Component {
             placeholderTextColor={'gray'}
             inputStyle={{fontSize: 15, marginStart: 0}}
             value={landmark}
-            onChangeText={landmark => this.setState({landmark})}
+            onChangeText={landmark => this.setState({landmark, error: ''})}
+            errorMessage={isLandmarkError && landMarkErrorText}
           />
           <Dropdown
             label="City"
-            data={cityData}
+            data={CitiesDropDownData}
             containerStyle={collapseContainer}
           />
           <Dropdown
             label="Area"
-            data={areaData}
+            data={AreasDropDownData}
             containerStyle={[collapseContainer, {marginTop: 8}]}
           />
 
           <Button
             title={strings.saveAddress}
+            loading={buttonLoading}
             buttonStyle={buttonStyle}
-            onPress={() => this.props.navigation.navigate('Menu')}
+            onPress={() =>
+              this.validateAddressInputs(
+                nameError,
+                streetError,
+                floorNoError,
+                buildingNoError,
+                landmarkError,
+              )
+            }
           />
         </View>
       </ScrollView>
     );
   }
 }
-
-const cityData = [
-  {value: 'cairo'},
-  {value: 'alex'},
-  {value: 'sohag'},
-  {value: 'sharm'},
-];
-
-const areaData = [
-  {value: 'AinShams'},
-  {value: 'Helwan'},
-  {value: 'Salah Salem'},
-];
 
 const styles = StyleSheet.create({
   enterDetailsText: {
@@ -159,4 +307,18 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AddAddress;
+const mapStateToProps = ({authReducer}) => {
+  const {user} = authReducer;
+  return {user};
+};
+
+const mapDispatchToProps = dispatch => {
+  return bindActionCreators(
+    {
+      newAddress,
+    },
+    dispatch,
+  );
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(AddAddress);

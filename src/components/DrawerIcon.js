@@ -15,7 +15,7 @@ export const DrawerIcon = props => {
     >
       <Icon
         name="align-justify"
-        color={colors.black}
+        color={colors.white}
         size={16}
         style={iconStyle}
       />
@@ -34,7 +34,5 @@ const styles = StyleSheet.create({
   iconStyle: {
     width: 23,
     height: 18,
-    tintColor: colors.white,
-    resizeMode: "contain"
   }
 });

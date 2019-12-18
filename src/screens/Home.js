@@ -5,23 +5,48 @@ import {strings} from '../strings';
 import {Button} from '../components/common';
 import {colors} from '../constants';
 import Modal, {ModalContent} from 'react-native-modals';
-// import Geolocation from '@react-native-community/geolocation';
+import Geolocation from '@react-native-community/geolocation';
+import Geocoder from 'react-native-geocoder';
 
 class Home extends Component {
   state = {
     modalVisible: false,
     latitude: '37.78825',
     longitude: '-122.4324',
+    type: 'ss',
   };
-  useThisAddress() {
-    // Geolocation.getCurrentPosition(position => {
-    //   const latitude = position.coords.latitude;
-    //   const longitude = position.coords.longitude;
-    //   this.setState({latitude, longitude});
-    // });
+
+  getAddress() {
+    Geolocation.getCurrentPosition(async position => {
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude;
+      this.setState({latitude, longitude});
+
+      const response = await fetch(
+        'https://maps.googleapis.com/maps/api/geocode/json?address=' +
+          this.state.latitude +
+          ',' +
+          this.state.longitude +
+          '&key=' +
+          'AIzaSyBb0Rk4lIS1MXvMtqoOEhTnj0dFoQEuXO0',
+      );
+      console.log(response);
+      const result = await response.json();
+      console.log(result);
+
+      //   Geocoder.geocodePosition(
+      //     position.coords.latitude,
+      //     position.coords.longitude,
+      //   )
+      //     .then(res => {
+      //       console.log('positionRES', res);
+      //     })
+      //     .catch(err => console.log(err));
+    });
   }
+
   render() {
-    const {modalVisible} = this.state;
+    const {modalVisible, type} = this.state;
     const {
       imageStyle,
       deliveryButton,
@@ -30,7 +55,7 @@ class Home extends Component {
       useAddressBtn,
       editBtn,
     } = styles;
-    const { navigation } = this.props
+    const {navigation} = this.props;
     return (
       <View style={{flex: 1, alignItems: 'center'}}>
         {/* modal section */}
@@ -45,16 +70,16 @@ class Home extends Component {
               buttonStyle={useAddressBtn}
               onPress={() => {
                 this.setState({modalVisible: false});
-                navigation.navigate('MyAddresses');
+                this.getAddress();
               }}
             />
             <Button
               title={strings.edit}
               buttonStyle={editBtn}
-              // onPress={() => {
-              //   this.setState({modalVisible: false});
-              //   navigation.navigate('MyAddresses');
-              // }}
+              onPress={() => {
+                this.setState({modalVisible: false});
+                navigation.navigate('MyAddresses');
+              }}
             />
           </ModalContent>
         </Modal>
@@ -70,7 +95,12 @@ class Home extends Component {
           <Button
             title={strings.takeAway}
             buttonStyle={takeAwayButton}
-            onPress={() => this.setState({modalVisible: !modalVisible})}
+            onPress={() =>
+              navigation.navigate('Branches', {
+                serviceType: 'takeaway',
+                test: null,
+              })
+            }
           />
         </View>
       </View>

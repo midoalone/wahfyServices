@@ -5,4 +5,5 @@ export const images = {
   food_3: require('./images/food_3.jpg'),
   food_4: require('./images/food_4.jpg'),
   food_5: require('./images/food_5.jpg'),
+  emptyCart: require('./images/emptyCart.png'),
 };

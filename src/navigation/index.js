@@ -1,12 +1,11 @@
 import {createAppContainer, createSwitchNavigator} from 'react-navigation';
 import {AuthNav} from './AuthNav';
-import {DrawerNav} from './DrawerNav';
-import { TabNavigator } from './TabNavigator';
+import { DrawerNav } from './DrawerNav';
+import { MainStack } from './MainStack';
 
 const rootNavigator = createSwitchNavigator({
-  // Tabs: {screen: TabNavigator},
   AuthNav: {screen: AuthNav},
-  DrawerNav: {screen: DrawerNav},
+  MainStack:{screen: MainStack},
 });
 
 export default createAppContainer(rootNavigator);

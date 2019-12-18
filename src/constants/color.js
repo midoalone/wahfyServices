@@ -2,7 +2,7 @@ export const colors = {
   white: '#fff',
   black: '#000',
 
-  placeholder: '#989898',
+  placeholder: 'gray',
 
   //button
   buttonBG: 'orange',

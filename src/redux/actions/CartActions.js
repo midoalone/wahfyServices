@@ -1,56 +1,34 @@
-import {
-  ADDTOCART,
-  REMOVEFROMCART,
-  INCREMENTCART,
-  DECREMENTCART,
-  INCREMENTHEADCART,
-  DECREMENTHEADCART,
-} from './types';
+import {ADDTOCART, INCREMENTCART, DECREMENTCART, REMOVEFROMCART} from './types';
 
-export const addToCart = item => {
-  return {
-    type: ADDTOCART,
-    payload: item,
+export const addToCart = (item) => {
+  return async dispatch => {
+    dispatch({
+      type: ADDTOCART,
+      payload: (item),
+    });
   };
 };
-
 export const removeFromCart = id => {
-  return {
-    type: REMOVEFROMCART,
-    payload: id,
+  return async dispatch => {
+    await dispatch({type: REMOVEFROMCART, payload: id});
   };
 };
 
-export const incermentCount = index => {
-  return {
-    type: INCREMENTCART,
-    payload: index,
+export const incermentCount = (qty, id) => {
+  return async dispatch => {
+    await dispatch({
+      type: INCREMENTCART,
+      payload: (qty, id),
+    });
   };
 };
 
-export const decermentCount = index => {
-  return {
-    type: DECREMENTCART,
-    payload: index,
+export const decermentCount = (qty, id) => {
+  return async dispatch => {
+    await dispatch({
+      type: DECREMENTCART,
+      payload: (qty, id),
+    });
   };
 };
 
-export const incermentHeadCount = () => {
-  return {
-    type: INCREMENTHEADCART,
-  };
-};
-
-export const decermentHeadCount = () => {
-  return {
-    type: DECREMENTHEADCART,
-  };
-};
-
-export const totalPrice = price => {
-  let newPrice = 0
-  return {
-    type: 'sum',
-    payload: newPrice += price ,
-  };
-};

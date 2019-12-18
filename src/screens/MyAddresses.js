@@ -4,11 +4,15 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import {colors} from '../constants';
 import {strings} from '../strings';
 import {AddressCard} from '../components';
+import {connect} from 'react-redux';
+import {bindActionCreators} from 'redux';
+import {deleteAddress} from '../redux/actions';
+import {base_URL} from '../services/API';
 
-export class MyAddresses extends Component {
+class MyAddresses extends Component {
   state = {
-    addressesData: [],
     selectedAddressId: null,
+    addresses: [],
   };
   static navigationOptions = ({navigation}) => ({
     headerStyle: {backgroundColor: 'orange'},
@@ -16,19 +20,43 @@ export class MyAddresses extends Component {
     headerTitle: strings.myAddresses,
   });
 
+  componentDidMount() {
+    this.getAddresses();
+  }
+
+  async getAddresses() {
+    const {token} = this.props.user.data;
+    const request = await fetch(`${base_URL}address`, {
+      method: 'GET',
+      headers: {
+        Authorization: token ? `Bearer ${token}` : '',
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    });
+    const myAddresses = await request.json();
+
+    this.setState({addresses: myAddresses.data});
+  }
+
+  handleDeleteAddress(isAddressExist, item) {
+    if (isAddressExist) {
+      this.props.deleteAddress(item.id);
+    }
+  }
+
   render() {
     const {buttonStyle} = styles;
-    const {selectedAddressId} = this.state;
-    const isEmptyAddresses = addressesData.length == 0;
+    const {selectedAddressId, addresses} = this.state;
+    const isEmptyAddresses = addresses.length == 0;
     return (
       <>
         {isEmptyAddresses ? (
           <View
             style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-            <Text style={{fontSize: 25, color: '#b0adad'}}>
-              {strings.noAddresses}
-            </Text>
-            <TouchableOpacity style={buttonStyle}>
+            <TouchableOpacity
+              style={buttonStyle}
+              onPress={() => this.props.navigation.navigate('AddAddress')}>
               <View
                 style={{
                   flexDirection: 'row',
@@ -50,11 +78,12 @@ export class MyAddresses extends Component {
         ) : (
           <FlatList
             style={{marginVertical: 30}}
-            data={addressesData}
+            data={addresses}
             extraData={this.state}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({item, index}) => {
               const isSelected = index == selectedAddressId;
+              const isAddressExist = addresses.includes(item);
               return (
                 <AddressCard
                   item={item}
@@ -63,6 +92,9 @@ export class MyAddresses extends Component {
                     this.setState({selectedAddressId: index});
                     this.props.navigation.navigate('Menu');
                   }}
+                  onPressDelete={() =>
+                    this.handleDeleteAddress(isAddressExist, item)
+                  }
                 />
               );
             }}
@@ -94,57 +126,6 @@ export class MyAddresses extends Component {
     );
   }
 }
-
-const addressesData = [
-  {
-    id: 1,
-    address:
-      'E-210, App innovation, Sector 74, industrial area, Phase, Mohali, India, 160002',
-    name: 'Salah Salem',
-  },
-  {
-    id: 2,
-    address:
-      'E-210, App innovation, Sector 74, industrial area, Phase, Mohali, India, 160002',
-    name: 'Salah Salem',
-  },
-  {
-    id: 3,
-    address:
-      'E-210, App innovation, Sector 74, industrial area, Phase, Mohali, India, 160002',
-    name: 'Salah Salem',
-  },
-  {
-    id: 4,
-    address:
-      'E-210, App innovation, Sector 74, industrial area, Phase, Mohali, India, 160002',
-    name: 'Salah Salem',
-  },
-  {
-    id: 5,
-    address:
-      'E-210, App innovation, Sector 74, industrial area, Phase, Mohali, India, 160002',
-    name: 'Salah Salem',
-  },
-  {
-    id: 6,
-    address:
-      'E-210, App innovation, Sector 74, industrial area, Phase, Mohali, India, 160002',
-    name: 'Salah Salem',
-  },
-  {
-    id: 7,
-    address:
-      'E-210, App innovation, Sector 74, industrial area, Phase, Mohali, India, 160002',
-    name: 'Salah Salem',
-  },
-  {
-    id: 8,
-    address:
-      'E-210, App innovation, Sector 74, industrial area, Phase, Mohali, India, 160002',
-    name: 'Salah Salem',
-  },
-];
 
 const styles = StyleSheet.create({
   container: {
@@ -204,3 +185,21 @@ const styles = StyleSheet.create({
     marginTop: 15,
   },
 });
+
+const mapStateToProps = ({addressReducer, authReducer}) => {
+  const {myAddresses} = addressReducer;
+  const {user} = authReducer;
+  return {myAddresses, user};
+};
+
+const mapDispatchToProps = dispatch => {
+  return bindActionCreators(
+    {
+      // getAddresses,
+      deleteAddress,
+    },
+    dispatch,
+  );
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(MyAddresses);

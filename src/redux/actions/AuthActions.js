@@ -1,43 +1,73 @@
+import {base_URL} from '../../services/API';
 import {
-    USERNAMECHANGED,
-    EMAILCHANGED,
-    DATEOFBIRTHDAYCHANGED,
-    PHONECHANGED,
-    PASSWORDCHANGED,
-  } from './types';
-  
-  export const userNameChanged = text => {
-    return {
-      type: USERNAMECHANGED,
-      payload: text,
-    };
+  START_LOADING,
+  LOGINSUCCESS,
+  LOGINFAILED,
+  REGISTERSUCCESS,
+  REGISTERFAILED,
+} from './types';
+
+export const login = ({email, password, navigation}) => async dispatch => {
+  const formData = {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      email,
+      password,
+    }),
   };
-  
-  export const emailChanged = text => {
-    return {
-      type: EMAILCHANGED,
-      payload: text,
-    };
+    dispatch({type: START_LOADING});
+    const request = await fetch(`${base_URL}auth/login`, formData);
+    const user = await request.json();
+
+    try {
+      if (user) {
+        dispatch({type: LOGINSUCCESS, payload: user});
+        navigation.navigate('Home');
+      } else {
+        dispatch({type: LOGINFAILED});
+      }
+    } catch (error) {
+      console.log(error);
+    }
+};
+
+export const signup = ({
+  name,
+  email,
+  phone,
+  password,
+  navigation,
+}) => async dispatch =>  {
+  const formData = {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      name,
+      email,
+      phone,
+      password,
+    }),
   };
-  
-  export const phoneChanged = text => {
-    return {
-      type: PHONECHANGED, 
-      payload: text,
-    };
-  };
-  
-  export const dateChanged = text => {
-    return {
-      type: DATEOFBIRTHDAYCHANGED,
-      payload: text,
-    };
-  };
-  
-  export const passwordChanged = text => {
-    return {
-      type: PASSWORDCHANGED,
-      payload: text,
-    };
-  };
-  
+    const request = await fetch(`${base_URL}auth/register`, formData);
+    dispatch({type: START_LOADING});
+    console.log('requestrequest', request)
+
+    const user = await request.json();
+    try {
+      if (user) {
+        dispatch({type: REGISTERSUCCESS, payload: user});
+        navigation.navigate('Home');
+      } else {
+        dispatch({type: REGISTERFAILED});
+      }
+    } catch (error) {
+      alert(error);
+    }
+};

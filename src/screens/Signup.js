@@ -4,32 +4,51 @@ import {Input, Button} from '../components/common';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
-import {
-  userNameChanged,
-  emailChanged,
-  phoneChanged,
-  dateChanged,
-  passwordChanged,
-} from '../redux/actions/AuthActions';
+import {signup} from '../redux/actions';
 import {colors} from '../constants';
 import {strings} from '../strings';
+import {isEmail, isPhoneNumber} from '../constants/validator';
 
 class Signup extends Component {
-  onNameChanged(text) {
-    this.props.userNameChanged(text);
+  state = {
+    fullName: '',
+    email: '',
+    phoneNo: '',
+    age: '',
+    password: '',
+    error: '',
+    buttonLoading: false
+  };
+
+  validateSignupInputs({
+    fullNameError,
+    emailError,
+    phoneNoError,
+    passwordError,
+  }) {
+    if (fullNameError) {
+      this.setState({error: 'fullname'});
+    } else if (emailError) {
+      this.setState({error: 'email'});
+    } else if (phoneNoError) {
+      this.setState({error: 'phone'});
+    } else if (passwordError) {
+      this.setState({error: 'password'});
+    } else this.register();
   }
-  onEmailChanged(text) {
-    this.props.emailChanged(text);
+
+  register() {
+    const {fullName, email, phone, password} = this.state;
+    const {navigation} = this.props;
+    this.props.signup({
+      name: fullName,
+      email,
+      phone,
+      password,
+      navigation,
+    });
   }
-  onPhoneChanged(text) {
-    this.props.phoneChanged(text);
-  }
-  onDateChanged(text) {
-    this.props.dateChanged(text);
-  }
-  onPasswordChanged(text) {
-    this.props.passwordChanged(text);
-  }
+
   render() {
     const {
       inputsContainer,
@@ -37,7 +56,38 @@ class Signup extends Component {
       termsAndConditionsStyle,
       termsContainer,
     } = styles;
-    const {userName, email, password, dateOfBirthDay, phone} = this.props;
+    const {
+      fullName,
+      email,
+      phoneNo,
+      password,
+      error,
+      age,
+      buttonLoading
+    } = this.state;
+
+    const { loading } = this.props
+
+    const emailError = email.length == 0 || !isEmail(email);
+    const isEmailError = error === 'email';
+
+    const fullNameError = fullName.length == 0;
+    const isNameError = error === 'fullname';
+
+    const phoneNoError = phoneNo.length == 0 || !isPhoneNumber(phoneNo);
+    const isPhoneNoError = error === 'phone';
+
+    const passwordError = password.length == 0 || password.length < 6;
+    const isPasswordError = error === 'password';
+
+    const {
+      emailErrorText,
+      nameErrorText,
+      phoneNoErrorText,
+      passwordErrorText,
+      birthdayErrorText,
+    } = strings.errorMessages;
+
     return (
       <ScrollView
         style={{
@@ -50,41 +100,59 @@ class Signup extends Component {
           behavior="padding">
           <Text style={welcomeBackText}>{strings.createAccount}</Text>
           <Input
-            placeholder={strings.userName}
+            placeholder={strings.fullName}
             placeholderTextColor={colors.placeholder}
-            value={userName}
-            onChangeText={this.onNameChanged.bind(this)}
+            inputStyle={{fontSize: 18}}
+            value={fullName}
+            onChangeText={fullName => this.setState({fullName, error: ''})}
+            errorMessage={isNameError && nameErrorText}
           />
           <Input
             placeholder={strings.email}
             placeholderTextColor={colors.placeholder}
+            inputStyle={{fontSize: 18}}
             value={email}
-            onChangeText={this.onEmailChanged.bind(this)}
+            onChangeText={email => this.setState({email, error: ''})}
+            errorMessage={isEmailError && emailErrorText}
           />
           <Input
             placeholder={strings.phone}
             placeholderTextColor={colors.placeholder}
-            value={phone}
-            onChangeText={this.onPhoneChanged.bind(this)}
+            inputStyle={{fontSize: 18}}
+            value={phoneNo}
+            keyboardType="phone-pad"
+            onChangeText={phoneNo => this.setState({phoneNo, error: ''})}
+            errorMessage={isPhoneNoError && phoneNoErrorText}
           />
           <Input
-            placeholder={strings.date}
+            placeholder={strings.age}
             placeholderTextColor={colors.placeholder}
-            value={dateOfBirthDay}
-            onChangeText={this.onDateChanged.bind(this)}
+            inputStyle={{fontSize: 18}}
+            value={age}
+            onChangeText={age => this.setState({age, error: ''})}
           />
           <Input
             placeholder={strings.password}
             placeholderTextColor={colors.placeholder}
+            inputStyle={{fontSize: 18}}
             secureTextEntry
             value={password}
-            onChangeText={this.onPasswordChanged.bind(this)}
+            onChangeText={password => this.setState({password, error: ''})}
+            errorMessage={isPasswordError && passwordErrorText}
           />
 
           <Button
             title={strings.signup}
+            loading={buttonLoading}
             buttonStyle={{width: '85%'}}
-            onPress={() => this.props.navigation.navigate('Home')}
+            onPress={() =>
+              this.validateSignupInputs({
+                fullNameError,
+                emailError,
+                phoneNoError,
+                passwordError,
+              })
+            }
           />
           <View style={termsContainer}>
             <Text style={termsAndConditionsStyle}>{strings.byClicking}</Text>
@@ -131,21 +199,12 @@ const styles = StyleSheet.create({
   },
 });
 
-const mapStateToProps = ({authReducer}) => {
-  const {userName, email, password, dateOfBirthDay, phone} = authReducer;
-  return {userName, email, password, dateOfBirthDay, phone};
-};
-
 const mapDispatchToProps = dispatch => {
   return bindActionCreators(
     {
-      userNameChanged,
-      emailChanged,
-      phoneChanged,
-      dateChanged,
-      passwordChanged,
+      signup,
     },
     dispatch,
   );
 };
-export default connect(mapStateToProps, mapDispatchToProps)(Signup);
+export default connect(null, mapDispatchToProps)(Signup);

@@ -1,10 +1,14 @@
 import {combineReducers} from 'redux'
 import AuthReducer from './AuthReducer';
-import FavReducer from './FavReducer';
 import CartReducer from './CartReducer';
+import AddressesReducer from './AddressesReducer';
+import BranchesReducer from './BranchesReducer';
+import OfferReducer from './OfferReducer';
 
 export default combineReducers({
     authReducer: AuthReducer,
-    favReducer: FavReducer,
-    cartReducer: CartReducer
+    cartReducer: CartReducer,
+    addressReducer: AddressesReducer,
+    branchesReducer: BranchesReducer,
+    offersReducer: OfferReducer
 })

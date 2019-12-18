@@ -6,23 +6,23 @@ import {HomeTab} from './HomeTab';
 import {MyOrdersTab} from './MyOrdersTab';
 import {TabBar} from '../components';
 import {strings} from '../strings';
-// import { DrawerNav } from './DrawerNav';
-
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 export const TabNavigator = createBottomTabNavigator(
   {
-    // DrawerNav: {screen: DrawerNav},
     MenuTab: {
       screen: MenuTab,
       navigationOptions: () => ({
-        tabBarIcon: ({focused}) => (
-          <TabBar
-            icon={'align-justify'}
-            focused={focused}
-            iconStyle={{width: 20, height: 20}}
-            label={strings.menu}
-          />
-        ),
+        tabBarIcon: ({focused}) => {
+          return (
+            <TabBar
+              icon={'align-justify'}
+              focused={focused}
+              iconStyle={{width: 20, height: 20}}
+              label={strings.menu}
+            />
+          );
+        },
       }),
     },
     CartTab: {
@@ -68,6 +68,7 @@ export const TabNavigator = createBottomTabNavigator(
   {
     tabBarOptions: {
       showLabel: false,
+      activeTintColor: 'red',
     },
   },
 );

@@ -23,13 +23,13 @@ export const Input = props => {
     onLeftPress,
     leftIconButton,
     errorMessageCustom,
-    errorContainerCustom,
+
     buttonLoading,
     leftIconStyle,
     loadingColor,
     buttonContainer,
     iconCustomStyle,
-    onRightPress
+    onRightPress,
   } = props;
   const {
     container,
@@ -42,7 +42,12 @@ export const Input = props => {
   const hasIcon = typeof icon !== 'undefined';
   return (
     <View>
-      <View style={[container, containerStyle]}>
+      <View
+        style={[
+          container,
+          containerStyle,
+          errorMessage && {borderColor: 'red'},
+        ]}>
         {leftIconButton && (
           <TouchableOpacity
             onPress={onLeftPress}
@@ -84,7 +89,7 @@ export const Input = props => {
           )}
         </TouchableOpacity>
       </View>
-      <View style={[errorContainer, errorContainerCustom]}>
+      <View style={[errorContainer]}>
         <Text style={[errorMessageStyle, errorMessageCustom]}>
           {errorMessage ? errorMessage : ''}
         </Text>
@@ -122,10 +127,11 @@ const styles = StyleSheet.create({
   },
   errorMessageStyle: {
     textAlign: 'center',
-    fontSize: 10,
+    fontSize: 12,
+    color: 'red',
   },
   errorContainer: {
-    height: 15,
+    height: 18,
     marginTop: 5,
   },
   buttonStyle: {

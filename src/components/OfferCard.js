@@ -5,7 +5,7 @@ import {colors} from '../constants/color';
 
 export const OfferCard = props => {
   const {item, onPress} = props;
-  const {image, offerName, price, description, type} = item;
+  const {id, image, title, price, description, type} = item;
 
   const {
     container,
@@ -16,18 +16,28 @@ export const OfferCard = props => {
   } = styles;
 
   return (
-    <TouchableOpacity style={container} onPress={onPress}>
+    <TouchableOpacity
+      key={id}
+      style={container}
+      onPress={onPress}>
       <Image source={image} style={menuImageStyle} />
       <View style={subContainer}>
-        <Text style={titleStyle}>{offerName}</Text>
+        <Text style={titleStyle}>{title}</Text>
         <Text
           style={[
             titleStyle,
-            {fontSize: 13, marginVertical: 5, fontWeight: '600', color:'#9c9c9c'},
+            {
+              fontSize: 13,
+              marginVertical: 5,
+              fontWeight: '600',
+              color: '#9c9c9c',
+            },
           ]}>
           {strings.price} {price}
         </Text>
-        <Text numberOfLines={2} style={{width: 200, fontSize: 12, color:'#b0b0b0'}}>
+        <Text
+          numberOfLines={2}
+          style={{width: 200, fontSize: 12, color: '#b0b0b0'}}>
           {description}
         </Text>
         <Text style={typeText}>{type}</Text>

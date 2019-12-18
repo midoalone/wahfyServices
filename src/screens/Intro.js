@@ -4,9 +4,15 @@ import {images} from '../assets';
 import {strings} from '../strings';
 import {colors} from '../constants';
 import {Button} from '../components/common';
+import {sWidth, sHeight, fScale, vScale, hScale} from 'step-scale';
+import {connect} from 'react-redux';
 
-export class Intro extends Component {
+class Intro extends Component {
   render() {
+    const {user} = this.props;
+    if (user) {
+      this.props.navigation.navigate('Home');
+    }
     const {
       imageStyle,
       textsContainer,
@@ -45,26 +51,33 @@ export class Intro extends Component {
 
 const styles = StyleSheet.create({
   imageStyle: {
-    width: '100%',
-    height: '100%',
+    width: sWidth,
+    height: sHeight,
   },
   textsContainer: {
-    marginTop: 50,
-    marginStart: 30,
+    marginTop: vScale(50),
+    marginStart: hScale(30),
   },
   introTextStyle: {
-    fontSize: 40,
+    fontSize: fScale(40),
     fontWeight: '700',
     color: colors.white,
   },
   setLocationText: {
-    fontSize: 15,
-    marginTop: 5,
+    fontSize: fScale(15),
+    marginTop: vScale(5),
   },
   buttonsContainer: {
-    marginTop: 250,
-    height: 120,
+    marginTop: vScale(250),
+    height: vScale(120),
     justifyContent: 'space-between',
     alignItems: 'center',
   },
 });
+
+const mapStateToProps = ({authReducer}) => {
+  const {user} = authReducer;
+  return {user};
+};
+
+export default connect(mapStateToProps, null)(Intro);

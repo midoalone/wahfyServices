@@ -1,16 +1,4 @@
-import {ADDTOFAVORITE, REMOVEFROMFAVORITE} from './types';
-
-
-export const addToFavorite = (item) => {
-    return {
-        type: ADDTOFAVORITE,
-        payload: item
-    }
-}
-
-export const removeFromFavorite = (id) => {
-    return {
-        type: REMOVEFROMFAVORITE, 
-        payload: id
-    }
-}
+export * from './AuthActions'
+export * from './CartActions'
+export * from './MenuAction'
+export * from './AddressesAction'

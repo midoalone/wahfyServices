@@ -11,22 +11,35 @@ import {Input, Button} from '../components/common';
 import Modal, {ModalContent} from 'react-native-modals';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
-import {emailChanged, passwordChanged} from '../redux/actions/AuthActions';
+import {login} from '../redux/actions';
 import {images} from '../assets';
 import {colors} from '../constants';
 import {strings} from '../strings';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import {isEmail} from '../constants/validator';
 
 class Login extends Component {
   state = {
+    email: '',
+    password: '',
+    error: '',
     modalVisible: false,
   };
-  onEmailChanged(text) {
-    this.props.emailChanged(text);
+
+  validateLoginInputs({emailError, passwordError}) {
+    if (emailError) {
+      this.setState({error: 'email'});
+    } else if (passwordError) {
+      this.setState({error: 'password'});
+    } else this.login();
   }
-  onPasswordChanged(text) {
-    this.props.passwordChanged(text);
+
+  login() {
+    const {email, password} = this.state;
+    const {navigation} = this.props;
+    this.props.login({email, password, navigation});
   }
+
   render() {
     const {
       imageStyle,
@@ -38,9 +51,21 @@ class Login extends Component {
       modalButtonsContainer,
       forgetBtn,
     } = styles;
-    const {modalVisible} = this.state;
-    const {navigation} = this.props;
-    const {email, password} = this.props;
+    const {email, password, error, modalVisible} = this.state;
+    const {navigation, loading} = this.props;
+
+    const emailError = email.length == 0 || !isEmail(email);
+    const isEmailError = error === 'email';
+
+    const passwordError = password.length == 0 || password.length < 6;
+    const isPasswordError = error === 'password';
+
+    const {
+      emailErrorText,
+      passwordErrorText,
+      forgetEmailErrorText,
+    } = strings.errorMessages;
+
     return (
       <ScrollView style={{flex: 1}}>
         {/* modal section */}
@@ -55,7 +80,8 @@ class Login extends Component {
               placeholder={strings.email}
               placeholderTextColor={colors.placeholder}
               value={email}
-              onChangeText={() => this.onEmailChanged()}
+              onChangeText={email => this.onEmailChanged(email)}
+              errorMessage={isEmailError && forgetEmailErrorText}
             />
             <Button title={strings.edit} buttonStyle={forgetBtn} />
           </ModalContent>
@@ -73,20 +99,31 @@ class Login extends Component {
               <Input
                 placeholder={strings.email}
                 placeholderTextColor={colors.placeholder}
+                inputStyle={{fontSize: 18}}
                 value={email}
-                onChangeText={() => this.onEmailChanged()}
+                onChangeText={email => this.setState({email, error: ''})}
+                errorMessage={isEmailError && emailErrorText}
               />
               <Input
                 placeholder={strings.password}
                 placeholderTextColor={colors.placeholder}
+                inputStyle={{fontSize: 18}}
                 value={password}
-                onChangeText={() => this.onPasswordChanged()}
+                secureTextEntry
+                onChangeText={password => this.setState({password, error: ''})}
+                errorMessage={isPasswordError && passwordErrorText}
               />
             </View>
             <Button
+              loading={loading}
               title={strings.login}
               buttonStyle={buttonStyle}
-              onPress={() => this.props.navigation.navigate('Home')}
+              onPress={() =>
+                this.validateLoginInputs({
+                  emailError,
+                  passwordError,
+                })
+              }
             />
             <TouchableOpacity
               style={{marginTop: 30}}
@@ -162,15 +199,14 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProps = ({authReducer}) => {
-  const {email, password} = authReducer;
-  return {email, password};
+  const {loading} = authReducer;
+  return {loading};
 };
 
 const mapDispatchToProps = dispatch => {
   return bindActionCreators(
     {
-      emailChanged,
-      passwordChanged,
+      login,
     },
     dispatch,
   );
