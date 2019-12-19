@@ -15,7 +15,12 @@ import Carousel from 'react-native-snap-carousel';
 import {Button} from '../components';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
-import {addToCart, removeFromCart} from '../redux/actions/CartActions';
+import {
+  addToCart,
+  removeFromCart,
+  incermentCount,
+  decermentCount,
+} from '../redux/actions/CartActions';
 import {hScale, vScale, fScale, sWidth} from 'step-scale';
 import Toast from 'react-native-simple-toast';
 import {base_URL} from '../services/API';
@@ -35,10 +40,8 @@ class ProductDetails extends Component {
   };
 
   addItemToCart(isExist, item) {
-    
     if (!isExist) {
-      console.warn('item cart', item);
-      this.props.addToCart(item);
+    this.props.addToCart(item);
     }
   }
 
@@ -48,26 +51,12 @@ class ProductDetails extends Component {
     }
   }
 
-  handleIncrementCount(item) {
-    const {count} = this.state;
-    if (count) {
-      this.setState({count: count + 1});
-    }
-  }
-  handleDecrementCount() {
-    const {count} = this.state;
-    if (count > 1) {
-      this.setState({count: count - 1});
-    }
-  }
   render() {
     const {toping, count} = this.state;
     const item = this.props.navigation.getParam('item');
     const {image, name_en, price, calories, category} = item;
-    // console.warn('itemitem', price);
 
-    
-    const {cart} = this.props;
+    const {cart, qty} = this.props;
     const isExist = cart.includes(item);
     const {
       headContainer,
@@ -110,13 +99,13 @@ class ProductDetails extends Component {
           <View style={countItemContainer}>
             <TouchableOpacity
               style={iconContainer}
-              onPress={() => this.handleDecrementCount()}>
+              onPress={() => this.props.decermentCount()}>
               <Icon name="minus" size={14} color={colors.black} />
             </TouchableOpacity>
-            <Text style={{fontSize: 15, fontWeight: 'bold'}}>{count}</Text>
+            <Text style={{fontSize: 15, fontWeight: 'bold'}}>{qty}</Text>
             <TouchableOpacity
               style={iconContainer}
-              onPress={() => this.handleIncrementCount()}>
+              onPress={() => this.props.incermentCount()}>
               <Icon name="plus" size={14} color={colors.black} />
             </TouchableOpacity>
           </View>
@@ -296,8 +285,8 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProps = ({cartReducer}) => {
-  const {cart, cartCount} = cartReducer;
-  return {cart, cartCount};
+  const {cart, qty} = cartReducer;
+  return {cart, qty};
 };
 
 const mapDispatchToProps = dispatch => {
@@ -305,6 +294,8 @@ const mapDispatchToProps = dispatch => {
     {
       addToCart,
       removeFromCart,
+      incermentCount,
+      decermentCount,
     },
     dispatch,
   );

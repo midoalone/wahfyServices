@@ -1,40 +1,29 @@
-import {base_URL} from '../../services/API';
-import {GETOFFERS, GETOFFERSMENU} from './types';
+import {get_request} from '../../services/API';
+import {GETOFFERS, GETOFFERSMENU, START_LOADING} from './types';
 
 export const getOffers = ({token}) => async dispatch => {
-  const request = await fetch(`${base_URL}offers`, {
-    method: 'GET',
-    headers: {
-      Authorization: token ? `Bearer ${token}` : '',
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-    },
-  });
-  const offers = await request.json();
+  dispatch({type: START_LOADING})
+  const offers = await get_request({target: 'offers', token});
   try {
     if (offers) {
       dispatch({type: GETOFFERS, payload: offers.data.data});
     }
   } catch (error) {
-    alert(error.message);
+    console.log(error.message);
   }
 };
 
-export const getOffersMenu = ({token, id,type}) => async dispatch => {
-  const request = await fetch(`${base_URL}offers/${id}?now/type=${type}`, {
-    method: 'GET',
-    headers: {
-      Authorization: token ? `Bearer ${token}` : '',
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-    },
+export const getOffersMenu = ({token, id, type}) => async dispatch => {
+  dispatch({type: START_LOADING})
+  const offersMenu = await get_request({
+    target: `offers/${id}?now/type=${type}`,
+    token,
   });
-  const offersMenu = await request.json();
   try {
     if (offersMenu) {
       dispatch({type: GETOFFERSMENU, payload: offersMenu.data});
     }
   } catch (error) {
-    alert(error.message);
+    console.log(error.message);
   }
 };

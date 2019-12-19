@@ -10,7 +10,7 @@ export const newAddress = ({
   city_id,
   area_id,
   navigation,
-  token
+  token,
 }) => async dispatch => {
   const addressData = {
     method: 'POST',
@@ -42,7 +42,6 @@ export const newAddress = ({
 };
 
 export const getAddresses = () => async dispatch => {
-  
   const {token} = this.props.user.data;
   const request = await fetch(`${base_URL}address`, {
     method: 'GET',
@@ -63,7 +62,7 @@ export const getAddresses = () => async dispatch => {
 };
 
 export const deleteAddress = id => {
-  return async(dispatch)=>{
-await dispatch({type:DELETEADDRESS,payload:id})
-  }
+  return async dispatch => {
+    await dispatch({type: DELETEADDRESS, payload: id});
+  };
 };

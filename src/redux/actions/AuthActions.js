@@ -6,6 +6,7 @@ import {
   REGISTERSUCCESS,
   REGISTERFAILED,
 } from './types';
+import AsyncStorage from '@react-native-community/async-storage';
 
 export const login = ({email, password, navigation}) => async dispatch => {
   const formData = {
@@ -25,6 +26,7 @@ export const login = ({email, password, navigation}) => async dispatch => {
 
     try {
       if (user) {
+        // await AsyncStorage.setItem('@TOKEN',JSON.stringify(user.data.token))
         dispatch({type: LOGINSUCCESS, payload: user});
         navigation.navigate('Home');
       } else {

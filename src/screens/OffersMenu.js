@@ -6,6 +6,7 @@ import {
   FlatList,
   StyleSheet,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import {connect} from 'react-redux';
 import {hScale, vScale, sWidth, fScale} from 'step-scale';
@@ -25,9 +26,10 @@ class OffersMenu extends Component {
   }
 
   addItemToCart(isExist, item) {
-    if (!isExist) {
-      this.props.addToCart(item);
-    }
+    console.warn('qty', item);
+    // if (!isExist) {
+    //   this.props.addToCart(item);
+    // }
   }
 
   render() {
@@ -38,137 +40,181 @@ class OffersMenu extends Component {
       titleStyle,
       buttonStyle,
     } = styles;
-    const {cart, offersMenu} = this.props;
+    const {offersMenu, loading, cart} = this.props;
     const offerType = this.props.navigation.getParam('offerType');
     const type = offerType == 'discount';
-    console.warn('offerType', offerType);
     return (
-      // <View style={{height: '100%', backgroundColor: 'green'}}>
-        <FlatList
-          style={menuListStyle}
-          contentContainerStyle={{paddingHorizontal: hScale(10)}}
-          showsVerticalScrollIndicator={false}
-          data={offersMenu}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({item}) => {
-            console.log('asdasdasdasd', item.details)
-            return (
-              <>
-                {type ? (
-                  <FlatList
-                    data={item.details ? item.details.items: []}
-                    keyExtractor={(item, index) => item.id}
-                    renderItem={({item}) => {
-                      const {
-                        id,
-                        image,
-                        name_en,
-                        offer_price,
-                        description,
-                      } = item;
-                      return (
-                        <View key={id} style={menuItemContainer}>
-                          <Image
-                            source={image != null && {uri: image}}
-                            style={menuImageStyle}
-                          />
+      <>
+        {loading ? (
+          <ActivityIndicator
+            size="large"
+            color={colors.buttonBG}
+            style={{marginTop: 15}}
+          />
+        ) : (
+          <FlatList
+            style={menuListStyle}
+            contentContainerStyle={{paddingHorizontal: hScale(10)}}
+            showsVerticalScrollIndicator={false}
+            data={offersMenu}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={({item}) => {
+              console.log('asdasdasdasd', item.details);
+              return (
+                <>
+                  {type ? (
+                    <FlatList
+                      data={item.details ? item.details.items : []}
+                      keyExtractor={(item, index) => item.id}
+                      renderItem={({item}) => {
+                        const isExist = cart.includes(item);
+                        const {
+                          id,
+                          image,
+                          name_en,
+                          offer_price,
+                          description,
+                        } = item;
+                        return (
+                          <View key={id} style={menuItemContainer}>
+                            <Image
+                              source={image != null && {uri: image}}
+                              style={menuImageStyle}
+                            />
+                            <View
+                              style={{
+                                alignItems: 'flex-start',
+                                justifyContent: 'flex-start',
+                              }}>
+                              <Text style={titleStyle}>{name_en}</Text>
+                              <Text style={titleStyle}>
+                                {strings.price} {offer_price}
+                              </Text>
+                              <Text
+                                numberOfLines={2}
+                                style={{width: hScale(110)}}>
+                                {description}
+                              </Text>
+                            </View>
 
+                            <TouchableOpacity
+                              style={buttonStyle}
+                              onPress={() => {
+                                this.addItemToCart(isExist, item);
+                                this.props.navigation.navigate('Cart');
+                              }}>
+                              <Text
+                                style={{
+                                  color: colors.white,
+                                  textAlign: 'center',
+                                }}>
+                                Add to cart
+                              </Text>
+                            </TouchableOpacity>
+                          </View>
+                        );
+                      }}
+                    />
+                  ) : (
+                    <>
+                      {/* -------- buy section --------- */}
+                      {item.details &&
+                        item.details.buy_items &&
+                        item.details.buy_items.length != 0 && (
                           <View
                             style={{
-                              alignItems: 'flex-start',
-                              justifyContent: 'flex-start',
-                            }}>
-                            <Text style={titleStyle}>{name_en}</Text>
-                            <Text style={titleStyle}>
-                              {strings.price} {offer_price}
-                            </Text>
-                            <Text
-                              numberOfLines={2}
-                              style={{width: hScale(110)}}>
-                              {description}
-                            </Text>
-                          </View>
-
-                          <TouchableOpacity
-                            style={buttonStyle}
-                            onPress={() => {
-                              this.addItemToCart(isExist, item);
-                              this.props.navigation.navigate('Cart');
+                              width: '100%',
+                              height: 50,
+                              backgroundColor: colors.buttonBG,
+                              justifyContent: 'center',
+                              marginVertical: 10,
                             }}>
                             <Text
                               style={{
-                                color: colors.white,
-                                textAlign: 'center',
+                                fontSize: 20,
+                                fontWeight: 'bold',
+                                marginStart: 8,
+                                color: 'white',
                               }}>
-                              Add to cart
+                              Buy {item.details && item.details.buy_quantity}
                             </Text>
-                          </TouchableOpacity>
-                        </View>
-                      );
-                    }}
-                  />
-                ) : (
-                  <>
-                    <View style={{flex:1}}>
-                      <Text>buy</Text>
+                          </View>
+                        )}
+
                       <FlatList
-                        data={item.details ?item.details.buy_items: []}
+                        data={item.details ? item.details.buy_items : []}
                         listKey={(item, index) => `>>>${item.id}${index}`}
                         renderItem={({item}) => {
-                          const {
-                            id,
-                            image,
-                            name_en,
-                            price,
-                            description,
-                          } = item;
-                          console.log('buy_items ', item);
+                          const {id, image, name_en, price, description} = item;
+                          const isExist = cart.includes(item);
                           return (
-                            <View key={id} style={menuItemContainer}>
-                              <Image
-                                source={image != null && {uri: image}}
-                                style={menuImageStyle}
-                              />
-                              <View
-                                style={{
-                                  alignItems: 'flex-start',
-                                  justifyContent: 'flex-start',
-                                }}>
-                                <Text style={titleStyle}>{name_en}</Text>
-                                <Text style={titleStyle}>
-                                  {strings.price} {price}
-                                </Text>
-                                <Text
-                                  numberOfLines={2}
-                                  style={{width: hScale(110)}}>
-                                  {description}
-                                </Text>
-                              </View>
-
-                              <TouchableOpacity
-                                style={buttonStyle}
-                                onPress={() => {
-                                  this.addItemToCart(isExist, item);
-                                  this.props.navigation.navigate('Cart');
-                                }}>
-                                <Text
+                            <>
+                              <View key={id} style={menuItemContainer}>
+                                <Image
+                                  source={image != null && {uri: image}}
+                                  style={menuImageStyle}
+                                />
+                                <View
                                   style={{
-                                    color: colors.white,
-                                    textAlign: 'center',
+                                    alignItems: 'flex-start',
+                                    justifyContent: 'flex-start',
                                   }}>
-                                  Add to cart
-                                </Text>
-                              </TouchableOpacity>
-                            </View>
+                                  <Text style={titleStyle}>{name_en}</Text>
+                                  <Text style={titleStyle}>
+                                    {strings.price} {price}
+                                  </Text>
+                                  <Text
+                                    numberOfLines={2}
+                                    style={{width: hScale(110)}}>
+                                    {description}
+                                  </Text>
+                                </View>
+
+                                <TouchableOpacity
+                                  style={buttonStyle}
+                                  onPress={() => {
+                                    this.addItemToCart(isExist, item);
+                                    this.props.navigation.navigate('Cart');
+                                  }}>
+                                  <Text
+                                    style={{
+                                      color: colors.white,
+                                      textAlign: 'center',
+                                    }}>
+                                    Add to cart
+                                  </Text>
+                                </TouchableOpacity>
+                              </View>
+                            </>
                           );
                         }}
                       />
-                    </View>
 
-                    <View style={{flex:1}}>
-                      <Text>get</Text>
+                      {item.details &&
+                        item.details.get_items &&
+                        item.details.get_items.length != 0 && (
+                          <View
+                            style={{
+                              width: '100%',
+                              height: 50,
+                              backgroundColor: colors.buttonBG,
+                              justifyContent: 'center',
+                              marginVertical: 10,
+                            }}>
+                            <Text
+                              style={{
+                                fontSize: 20,
+                                fontWeight: 'bold',
+                                marginStart: 8,
+                                color: 'white',
+                              }}>
+                              Get {item.details && item.details.get_quantity}
+                            </Text>
+                          </View>
+                        )}
+
                       <FlatList
-                       data={item.details ? item.details.get_items : []}
+                        data={item.details ? item.details.get_items : []}
                         listKey={(item, index) => `@=>${index.toString()}`}
                         renderItem={({item}) => {
                           const {
@@ -178,55 +224,62 @@ class OffersMenu extends Component {
                             offer_price,
                             description,
                           } = item;
-                          console.warn('get_items ', item);
+                          const isExist = cart.includes(item);
                           return (
-                            <View key={id} style={menuItemContainer}>
-                              <Image
-                                source={image != null && {uri: image}}
-                                style={menuImageStyle}
-                              />
-                              <View
-                                style={{
-                                  alignItems: 'flex-start',
-                                  justifyContent: 'flex-start',
-                                }}>
-                                <Text style={titleStyle}>{name_en}</Text>
-                                <Text style={titleStyle}>
-                                  {strings.price} {offer_price}
-                                </Text>
-                                <Text
-                                  numberOfLines={2}
-                                  style={{width: hScale(110)}}>
-                                  {description}
-                                </Text>
-                              </View>
-
-                              <TouchableOpacity
-                                style={buttonStyle}
-                                onPress={() => {
-                                  this.addItemToCart(isExist, item);
-                                  this.props.navigation.navigate('Cart');
-                                }}>
-                                <Text
+                            <>
+                              <View key={id} style={menuItemContainer}>
+                                <Image
+                                  source={image != null && {uri: image}}
+                                  style={menuImageStyle}
+                                />
+                                <View
                                   style={{
-                                    color: colors.white,
-                                    textAlign: 'center',
+                                    alignItems: 'flex-start',
+                                    justifyContent: 'flex-start',
                                   }}>
-                                  Add to cart
-                                </Text>
-                              </TouchableOpacity>
-                            </View>
+                                  <Text style={titleStyle}>{name_en}</Text>
+                                  <Text style={titleStyle}>
+                                    {strings.price} {offer_price}
+                                  </Text>
+                                  <Text
+                                    numberOfLines={2}
+                                    style={{width: hScale(110)}}>
+                                    {description}
+                                  </Text>
+                                </View>
+
+                                <TouchableOpacity
+                                  style={buttonStyle}
+                                  onPress={() => {
+                                    this.addItemToCart(isExist, item);
+                                    this.props.navigation.navigate('Cart');
+                                  }}>
+                                  <Text
+                                    style={{
+                                      color: colors.white,
+                                      textAlign: 'center',
+                                    }}>
+                                    Add to cart
+                                  </Text>
+                                </TouchableOpacity>
+                              </View>
+                            </>
                           );
                         }}
                       />
-                    </View>
-                  </>
-                )}
-              </>
-            );
-          }}
-        />
-      // </View>
+
+                      {/* <View>
+
+                        
+                      </View> */}
+                    </>
+                  )}
+                </>
+              );
+            }}
+          />
+        )}
+      </>
     );
   }
 }
@@ -281,10 +334,10 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProps = ({offersReducer, authReducer, cartReducer}) => {
-  const {offersMenu} = offersReducer;
+  const {offersMenu, loading} = offersReducer;
   const {user} = authReducer;
   const {cart} = cartReducer;
-  return {user, offersMenu, cart};
+  return {user, offersMenu, cart, loading};
 };
 
 const mapDispatchToProps = dispatch => {

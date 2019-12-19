@@ -42,7 +42,7 @@ class MyAddresses extends Component {
   handleDeleteAddress(isAddressExist, item) {
     if (isAddressExist) {
       this.props.deleteAddress(item.id);
-    }
+    }else console.warn('asd')
   }
 
   render() {

@@ -14,8 +14,18 @@ export default (state = initialState, action) => {
     case ADDTOCART:
       return {
         ...state,
-        cart: [...state.cart, {id: action.payload.id, qty: action.payload.id + 1}],
+        cart: [
+          ...state.cart,
+          state.cart.map(item =>
+            item.id == action.payload ? [...state.cart, action.payload] : '',
+          ),
+        ],
       };
+    // get the current state.cart to new var as a backup
+    // find the target element and store it in new variable
+    // modify that target element
+    // replace that element in state backup variable
+    // replace the current state cart with the new one just modified
     case REMOVEFROMCART:
       return {
         ...state,

@@ -84,9 +84,9 @@ class Menu extends Component {
     });
   }
 
-  addItemToCart(isExist, item) {
+  addItemToCart(isExist, id) {
     if (!isExist) {
-      this.props.addToCart(item);
+      this.props.addToCart(id);
     }
   }
 
@@ -129,6 +129,8 @@ class Menu extends Component {
     const {categories, menuItems, screenLoading} = this.state;
     const {cart} = this.props;
 
+    
+
     return (
       <ScrollView
         style={container}
@@ -138,7 +140,11 @@ class Menu extends Component {
         }}
         showsVerticalScrollIndicator={false}>
         {screenLoading ? (
-          <ActivityIndicator size="large" color={colors.buttonBG} />
+          <ActivityIndicator
+            size="large"
+            color={colors.buttonBG}
+            style={{marginTop: 15}}
+          />
         ) : (
           <>
             <View style={bannerContainer}>
@@ -179,10 +185,15 @@ class Menu extends Component {
                 horizontal
                 renderItem={({item, index}) => {
                   const {id, image, name_en} = item;
+                  const hasImage = image != null;
                   return (
                     <TouchableOpacity
                       onPress={() => this.getMenuItemsAndExtras(id)}>
-                      <Image source={{uri: image}} style={itemImageStyle} />
+                      {hasImage ? (
+                        <Image source={{uri: image}} style={itemImageStyle} />
+                      ) : (
+                        <Image source={images.food_1} style={itemImageStyle} />
+                      )}
                       <Text style={titleStyle}>{name_en}</Text>
                     </TouchableOpacity>
                   );
@@ -202,7 +213,7 @@ class Menu extends Component {
               keyExtractor={(item, index) => index.toString()}
               renderItem={({item}) => {
                 const {id, image, name_en, price, description_en} = item;
-                const isExist = cart.includes(item);
+                const isExist = cart.includes(id);
                 return (
                   <TouchableOpacity
                     key={id}
@@ -228,7 +239,7 @@ class Menu extends Component {
 
                     <TouchableOpacity
                       style={buttonStyle}
-                      onPress={() => this.addItemToCart(isExist, item)}>
+                      onPress={() => this.addItemToCart(isExist, id)}>
                       <Text style={{color: colors.white}}>Add to cart</Text>
                     </TouchableOpacity>
                   </TouchableOpacity>

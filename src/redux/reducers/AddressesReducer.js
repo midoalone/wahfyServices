@@ -17,7 +17,9 @@ export default (state = INITIALSTATE, action) => {
     case DELETEADDRESS:
       return {
         ...state,
-        myAddresses: state.myAddresses.filter(item => item.id != action.payload),
+        myAddresses: state.myAddresses.filter(
+          item => item.id != action.payload,
+        ),
       };
     default:
       return state;

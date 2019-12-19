@@ -10,7 +10,7 @@ import {
 import {CartCard} from '../components/CartCard';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
-import {addToCart, removeFromCart} from '../redux/actions/CartActions';
+import {addToCart, removeFromCart, incermentCount, decermentCount} from '../redux/actions/CartActions';
 import {Button} from '../components';
 import {strings} from '../strings';
 import {vScale} from 'step-scale';
@@ -39,7 +39,7 @@ class Cart extends Component {
   }
   render() {
     const {count} = this.state;
-    const {cart} = this.props;
+    const {cart, qty} = this.props;
     const emptyCart = cart.length == 0;
 
     const cartPrice = cart.map(item => Number(item.price));
@@ -84,10 +84,10 @@ class Cart extends Component {
             )}
             showsVerticalScrollIndicator={false}
             keyExtractor={(item, index) => index.toString()}
-            renderItem={({item}) => {
+            renderItem={({item,index}) => {
               const {id, image, name_en, price, extras, calories} = item;
               return (
-                <View style={container} key={id}>
+                <View style={container} key={`id&${index}${id}`}>
                   <View style={{flexDirection: 'row'}}>
                     <Image source={image} style={imageStyle} />
                     <View style={{marginStart: 10}}>
@@ -96,15 +96,15 @@ class Cart extends Component {
                         <View style={countItemContainer}>
                           <TouchableOpacity
                             style={iconContainer}
-                            onPress={() => this.handleDecrementCount()}>
+                            onPress={() => this.props.decermentCount()}>
                             <Icon name="minus" size={14} color={colors.black} />
                           </TouchableOpacity>
                           <Text style={{fontSize: 15, fontWeight: 'bold'}}>
-                            {count}
+                            {qty}
                           </Text>
                           <TouchableOpacity
                             style={iconContainer}
-                            onPress={() => this.handleIncrementCount(item)}>
+                            onPress={() => this.props.incermentCount()}>
                             <Icon name="plus" size={14} color={colors.black} />
                           </TouchableOpacity>
                         </View>
@@ -386,8 +386,8 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProps = ({cartReducer}) => {
-  const {cart, cartCount} = cartReducer;
-  return {cart, cartCount};
+  const {cart, qty} = cartReducer;
+  return {cart,qty};
 };
 
 const mapDispatchToProps = dispatch => {
@@ -395,6 +395,8 @@ const mapDispatchToProps = dispatch => {
     {
       addToCart,
       removeFromCart,
+      incermentCount, 
+      decermentCount
     },
     dispatch,
   );

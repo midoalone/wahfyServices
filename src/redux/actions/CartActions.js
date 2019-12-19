@@ -1,10 +1,10 @@
 import {ADDTOCART, INCREMENTCART, DECREMENTCART, REMOVEFROMCART} from './types';
 
-export const addToCart = (item) => {
+export const addToCart = (qty, id) => {
   return async dispatch => {
     dispatch({
       type: ADDTOCART,
-      payload: (item),
+      payload: (qty, id),
     });
   };
 };
